@@ -193,7 +193,55 @@ output$emptyTable <- renderUI({
   }
 })
 
-observeEvent(input$confirmedGroupList, {
+
+
+
+##
+#observeEvent(input$uploadCountData, {
+#  showNotification("Start uploading file...", type = "message")
+#  tryCatch(
+#    {#
+#      variables$CountData <-
+#        data.frame(fread(input$uploadCountData$datapath), row.names = 1)
+#      variables$tccObject <- NULL
+  #    v$importActionValue <- FALSE
+#      showNotification("Received uploaded file.", type = "message")
+#    },
+#    error = function(e) {
+#      sendSweetAlert(
+#        session = session,
+#        title = "Input data error!",
+#        text = as.character(message(e)),
+#        type = "error"
+##      )
+  #    return()
+  #  },
+#    warning = function(w) {
+#      sendSweetAlert(
+#        session = session,
+#        title = "Input data warning!",
+#        text = "Some error is in your dataset, it maybe cause some problem we cannot expected.",
+#        type = "warning"
+#      )
+#      return()
+#    }
+#  )
+#})
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+observeEvent(input$uploadGroupData, {
   if (nrow(datasetInput()) == 0) {
     sendSweetAlert(
       session = session,
@@ -203,7 +251,7 @@ observeEvent(input$confirmedGroupList, {
     )
     return()
   }
-  if (input$groupSelectViaText == "") {
+  if (input$uploadGroupData == "") {
     sendSweetAlert(
       session = session,
       title = "ERROR",
@@ -223,7 +271,15 @@ observeEvent(input$confirmedGroupList, {
         value = 0
       )
 
-      group <- fread(input$groupSelectViaText, header = FALSE)
+# probably need to edit this here- th UI is okayish now, but the data does not get read
+            # the object should be :uploadGroupData
+      group<- (fread(input$uploadGroupData$datapath,header=F))
+    #  group <- fread(input$uploadGroupData, header = FALSE)
+      print("test:group is")
+      print(group)
+
+# fix the part here: group and sample asetions
+
       variables$groupList <-
         lapply(unique(group$V2), function(x) {
           group[group$V2 == x, ]$V1

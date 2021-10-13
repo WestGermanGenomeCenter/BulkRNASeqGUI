@@ -28,25 +28,25 @@ shinyServer(function(input, output, session) {
     norSampleDistributionDensity = "",
     MAPlotObject = "",
     VolcanoPlotObject = "",
-    
+
     mdsPlot = list(),
     mdsPlotplot = NULL,
-      
+
     data.pca = NULL,
     pcaParameter = NULL,
     screePlot = NULL,
     pca3d = NULL,
     pca2d = NULL,
     summaryPCA = NULL,
-    
+
     heatmapObject = "",
-    
+
     expressionData = NULL,
     expressionLevelBar = NULL,
     expressionLevelBox = NULL,
     expressionLevelCountTable = NULL,
     expressionLevelResultTable = NULL,
-    
+
     logList = data.frame(
       "Time" = vector(),
       "Type" = vector(),
@@ -82,11 +82,11 @@ shinyServer(function(input, output, session) {
   source(file = "server-expression-plot.R",
          local = TRUE,
          encoding = "UTF-8")
-  source(file = "server-report.R",
-         local = TRUE,
-         encoding = "UTF-8")
+#  source(file = "server-report.R",
+#         local = TRUE,
+#         encoding = "UTF-8")
   source(file = "R-code.R",
          local = TRUE,
          encoding = "UTF-8")
-  
+
 })

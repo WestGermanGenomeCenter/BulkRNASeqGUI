@@ -40,21 +40,14 @@ fluidPage(fluidRow(column(
     solidHeader = TRUE,
     status = "primary",
     width = NULL,
-    textAreaInput(
-      "groupSelectViaText",
-      "Input your group info",
-      rows = 6,
-      placeholder = paste(
-        "Please input group information at here. Here is a example format:",
-        "-----",
-        "G1_rep1,Group1",
-        "G1_rep2,Group1",
-        "G1_rep3,Group1",
-        "G2_rep1,Group2",
-        "G2_rep2,Group2",
-        "G2_rep3,Group2",
-        sep = '\n'
-      )
+    fileInput(
+      "uploadGroupData",
+      "Upload Group Data",
+      accept = c("text/csv",
+                 "text/comma-separated-values,text/plain",
+                 ".csv"),
+      buttonLabel = "Upload Group...",
+      placeholder = "No file has been uploaded."
     ),
     do.call(actionBttn, c(
       list(
@@ -64,7 +57,7 @@ fluidPage(fluidRow(column(
         actionBttnParams
       )
     ),
-    footer = helpText("TCC-GUI expect first label should be Group1 (G1) and the next be Group2 (G2), and so on.")
+    footer = HTML("Upload a .csv file with no header and samplename,groupname for each sample<br/>Example:<br/>Sample1,Group1<br/>Sample2,Group1<br/>Sample3,Group2<br/>...")
   ),
   box(
     title = tagList(icon("info-circle"), "Summary"),
