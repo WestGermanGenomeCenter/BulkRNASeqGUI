@@ -17,7 +17,7 @@ observeEvent(input$sider, {
             "Fold Change (X-axis) Cut-off",
             min = ceiling(min(resultTable()$m.value)),
             max = floor(max(resultTable()$m.value)),
-            value = c(-1, 1),
+            value = c(-2, 2),
             step = 0.5
           ),
           textInput("xlabs", "X-axis Label", value = "log<sub>2</sub>(Fold Change)"),

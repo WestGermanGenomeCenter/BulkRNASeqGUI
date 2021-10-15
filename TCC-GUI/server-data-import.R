@@ -271,6 +271,19 @@ observeEvent(input$uploadGroupData, {
         value = 0
       )
 
+      ## new, try to get the pca working:
+    #  datasetInput <- reactive({
+    #    variables$groupList
+    #      v$importActionValue <-input$uploadGroupData
+    #  })
+
+      # added the above part to maybe get the pca working
+#observeEvent(input$uploadGroupData){
+#  v$importActionValue <-input$uploadGroupData
+#}
+
+
+
 # probably need to edit this here- th UI is okayish now, but the data does not get read
             # the object should be :uploadGroupData
       group<- (fread(input$uploadGroupData$datapath,header=F))
@@ -295,6 +308,14 @@ observeEvent(input$uploadGroupData, {
       # Storage convert group list to local
       variables$groupListConvert <- data.cl
 
+
+      # make R realize it can do the pca and so on now :
+
+
+      v$importActionValue <-input$uploadGroupData
+
+
+
       # Create TCC Object
       tcc <-
         new("TCC", variables$CountData[data.cl != 0], data.cl[data.cl != 0])
@@ -312,11 +333,11 @@ observeEvent(input$uploadGroupData, {
       sendSweetAlert(
         session = session,
         title = "DONE",
-        text = "Group labels were successfully assigned.",
+        text = "Group labels accepted, you can now assign them.",
         type = "success"
       )
 
-      v$importActionValue <- input$confirmedGroupList
+      v$importActionValue <- TRUE
     },
     error = function(e) {
       sendSweetAlert(
@@ -546,7 +567,10 @@ output$sampleDistributionDensityPanel <- renderUI({
       )
     ))
   } else {
-    helpText("No data for ploting. Please import dataset and assign group information first.")
+    print("import action value is false: diagnose this:")
+    print("grouplistconvert:")
+    print(head(variables$groupListConvert))
+    helpText("No data for plotting. Please import dataset and assign group information first.")
   }
 })
 
@@ -588,7 +612,12 @@ output$sampleDistributionBoxPanel <- renderUI({
       )
     ))
   } else {
-    helpText("No data for ploting. Please import dataset and assign group information first.")
+    print("error with data export")
+    # print diagnoses code
+
+
+
+    helpText("No data for plotting. Please import dataset and assign group information first.")
   }
 })
 
@@ -683,7 +712,7 @@ output$lowCountFilterByCutoffUI <- renderUI({
       )
     ))
   } else {
-    helpText("No data for ploting. Please import dataset and assign group information first.")
+    helpText("No data for plotting. Please import dataset and assign group information first.")
   }
 })
 
@@ -789,7 +818,7 @@ output$mdsUI <- renderUI({
       column(9, plotlyOutput("mdsPlotObject") %>% withSpinner())
     ))
   } else {
-    helpText("No data for ploting. Please import dataset and assign group information first.")
+    helpText("No data for plotting. Please import dataset and assign group information first.")
   }
 })
 
@@ -1088,7 +1117,7 @@ output$pcaUI <- renderUI({
       )
     ))
   } else {
-    helpText("No data for ploting. Please import dataset and assign group information first.")
+    helpText("No data for plotting. Please import dataset and assign group information first.")
   }
 })
 
@@ -1151,6 +1180,6 @@ output$dendUI <- renderUI({
       column(9, plotlyOutput("dendPlotObject") %>% withSpinner())
     ))
   } else {
-    helpText("No data for ploting. Please import dataset and assign group information first.")
+    helpText("No data for plotting. Please import dataset and assign group information first.")
   }
 })

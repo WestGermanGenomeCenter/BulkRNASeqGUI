@@ -2,7 +2,7 @@ library(shiny)
 tagList(
   dashboardPage(
     dashboardHeader(
-      title = "TCC-GUI: Graphical User Interface for TCC package",
+      title = "BulkRNASeq GUI",
       titleWidth = 500,
       dropdownMenu(
         type = "messages",
@@ -19,16 +19,16 @@ tagList(
           time = sprintf("Update ad %s", as.Date(max(
             file.info(list.files())$mtime
           ))),
-          href = "https://github.com/swsoyee/TCC-GUI"
+          href = "https://github.com/WestGermanGenomeCenter/BulkRNASeqGUI"
         ),
         messageItem(
           from = "About Us",
           message = "Go to Lab Homepage",
           icon = icon("users"),
-          href = "http://www.bi.a.u-tokyo.ac.jp/"
+          href = "http://www.wggc.de"
         ),
         icon = icon("info-circle"),
-        headerText = "INFORMATIONS"
+        headerText = "INFORMATION"
       )
     ),
     dashboardSidebar(
@@ -195,12 +195,12 @@ tagList(
           file = "ui-expression-plot.R",
           local = TRUE,
           encoding = "UTF-8"
-        )$value),
-        tabItem(tabName = "reportTab", source(
-          file = "ui-report.R",
-          local = TRUE,
-          encoding = "UTF-8"
         )$value)
+       tabItem(tabName = "reportTab", source(
+         file = "ui-report.R",
+         local = TRUE,
+         encoding = "UTF-8"
+       )$value)
       )
     )
   ),

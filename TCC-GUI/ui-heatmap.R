@@ -25,8 +25,8 @@ column(
     title = tagList(icon("th"), "Heatmap"),
     width = NULL,
     solidHeader = TRUE,
-    status = "info", 
-    footer = "It will be very time consuming if the number of genes is over hundred. Reduce the number by cutoff or wait patiently.",
+    status = "info",
+    footer = "It will be very time consuming if the number of genes is over 100. Reduce the number of genes or wait.",
     uiOutput("heatmapPlot")
   ),
   box(

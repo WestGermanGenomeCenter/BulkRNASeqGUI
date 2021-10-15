@@ -15,7 +15,9 @@ observeEvent(input$sider, {
           choices = c(
             "By List" = "By list",
             # "By name",
-            "By FDR" = "By FDR"
+            "By FDR" = "By FDR",
+
+            "By Rank" = "By top diverging"
           ),
           justified = TRUE,
           status = "primary"
@@ -324,19 +326,65 @@ output$heatmapSelectGene <- renderUI({
     #   "Select genes by name",
     #   choices = row.names(variables$CountData),
     #   multiple = TRUE
+    "By top diverging" =
+      tagList(
+        numericInput(
+          "TopdivergingGenesN",
+          "Number of Genes",
+          min = 1,
+          max = 1000, # number of genes
+          value = 1,
+          step = 1,
+          width = NULL
+        ),
+        textOutput("heatmapGeneCountPreview")
+      ),
+
+
+
+
+
+
+
     # ),
     "By FDR" = tagList(if (input$testMethod != "wad") {
       tagList(
+
         sliderInput(
           "heatmapFDR",
           "FDR Cut-off",
-          min = 0.01,
+          min = 0.001,
           max = 1,
           value = 0.01
         ),
         textOutput("heatmapGeneCountPreview")
       )
-    } else {
+    }
+
+# new test fun: select top diverging 500,x%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###################
+
+
+
+
+
+
+    else {
       tagList(
         tags$p("No FDR value for WAD method, please select genes by rank."),
         numericInput("heatmapFDRTop", "Number of top-ranked genes", value = 50)
@@ -383,6 +431,21 @@ observeEvent(input$heatmapRun, {
           row.names(data) %in% unlist(strsplit(x = input$heatmapTextList, split = "[\r\n]"))
         heatmapTitle <- "Heatmap of specific genes"
       }
+
+      if (input$heatmapGeneSelectType == "By top diverging") {
+        # find here the top x from input diverging gene names
+
+
+
+        selectedListForHeatmap <-
+          row.names(data) %in% resultTable()[resultTable()$rank <= input$TopdivergingGenesN, ]$gene_id
+        heatmapTitle <- "Heatmap of top Diverging genes (rank)"
+      }
+
+
+
+
+
 
       if (input$heatmapGeneSelectType == "By FDR") {
         if (input$testMethod == "wad") {

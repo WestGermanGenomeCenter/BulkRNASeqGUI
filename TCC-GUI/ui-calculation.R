@@ -11,15 +11,15 @@ fluidPage(useSweetAlert(), fluidRow(column(
       selectInput(
         "normMethod",
         "Normalization Method",
-        c("TMM" = "tmm",
-          "DESeq2" = "deseq2")
+        c("DESeq2" = "deseq2","TMM" = "tmm"
+          )
       ),
       selectInput(
         "testMethod",
         "DEG Identification Method",
         c(
-          "edgeR" = "edger",
           "DESeq2" = "deseq2",
+          "edgeR" = "edger",
           "baySeq" = "bayseq",
           "SAMSeq" = "samseq",
           "Voom" = "voom"#,
@@ -30,19 +30,21 @@ fluidPage(useSweetAlert(), fluidRow(column(
         sliderTextInput(
           inputId = "filterLowCount",
           label = "Filtering Threshold for Low Count Genes",
-          choices = c("Do not filter", c(0:30))
+          choices = c("Do not filter", c(0:30)),
+          selected=c(2)
+
         ),
         title = "Reference",
         content = '<p>Filter genes with a total read count smaller than thresholds.</p><p>Sultan, Marc, et al. <a href="http://science.sciencemag.org/content/321/5891/956">"A global view of gene activity and alternative splicing by deep sequencing of the human transcriptome."</a> <i>Science</i> 321.5891 (2008): 956-960.</p>',
         placement = "top"
-      ), 
+      ),
       textOutput("lowCountFilterText"),
       sliderInput(
         "iteration",
         "Number of Iteration",
         min = 0,
         max = 30,
-        value = 3
+        value = 0
       ),
       sliderInput(
         "fdr",
@@ -57,7 +59,7 @@ fluidPage(useSweetAlert(), fluidRow(column(
         "Elimination of Potential DEGs",
         min = 0,
         max = 1,
-        value = 0.05,
+        value = 0,
         step = 0.05
       ),
       do.call(actionBttn, c(

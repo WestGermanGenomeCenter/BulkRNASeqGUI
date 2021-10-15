@@ -66,9 +66,9 @@ observeEvent(input$TCC, {
   })
   output$reportTab <- renderMenu({
     menuItem(
-      "Report",
+      "Next Function",
       tabName = "reportTab",
-      icon = icon("file-pdf-o"),
+      icon = icon("angle-double-down"),
       badgeLabel = "Step 4",
       badgeColor = "fuchsia"
     )
