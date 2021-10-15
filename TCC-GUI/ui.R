@@ -195,7 +195,7 @@ tagList(
           file = "ui-expression-plot.R",
           local = TRUE,
           encoding = "UTF-8"
-        )$value)
+        )$value),
        tabItem(tabName = "reportTab", source(
          file = "ui-report.R",
          local = TRUE,
