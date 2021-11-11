@@ -1,5 +1,71 @@
 # server-report.R
 
+# add small table to check input data
+
+
+
+
+
+
+# table function from data import partv
+
+#
+# runReport <- DT::renderDataTable({
+#   df <- datasetInput()
+#   # Create 19 breaks and 20 rgb color values ranging from white to blue
+#   brks <-
+#     quantile(df %>% select_if(is.numeric),
+#       probs = seq(.05, .95, .05),
+#       na.rm = TRUE
+#     )
+#
+#   DT::datatable(
+#     df,
+#     colnames = c("Gene Name" = 1),
+#     extensions = c("Scroller", "RowReorder"),
+#     option = list(
+#       rowReorder = TRUE,
+#       deferRender = TRUE,
+#       scrollY = 400,
+#       scroller = TRUE,
+#       scrollX = TRUE,
+#       searchHighlight = TRUE,
+#       orderClasses = TRUE
+#     )
+#   ) %>%
+#     formatStyle(names(df %>% select_if(is.numeric)), backgroundColor = styleInterval(brks, head(Blues(40), n = length(brks) + 1)))
+# })
+
+#try to print the table upon play presses
+ observeEvent(input$generateReport,{DT::renderDataTable({
+   df <- datasetInput()
+   # Create 19 breaks and 20 rgb color values ranging from white to blue
+   brks <-
+     quantile(df %>% select_if(is.numeric),
+       probs = seq(.05, .95, .05),
+       na.rm = TRUE
+     )
+
+   DT::datatable(
+     df,
+     colnames = c("Gene Name" = 1),
+     extensions = c("Scroller", "RowReorder"),
+     option = list(
+       rowReorder = TRUE,
+       deferRender = TRUE,
+       scrollY = 400,
+       scroller = TRUE,
+       scrollX = TRUE,
+       searchHighlight = TRUE,
+       orderClasses = TRUE
+     )
+   ) %>%
+     formatStyle(names(df %>% select_if(is.numeric)), backgroundColor = styleInterval(brks, head(Blues(40), n = length(brks) + 1)))
+ })})
+
+
+
+
 runReport <- reactiveValues(runReportValue = FALSE)
 # If analysis part has been executed, than render check box ----
 output$renderSimulationReportOption <- renderUI({
@@ -101,9 +167,9 @@ output$reportOption <- renderUI({
         "Filtering Threshold",
         "Density Plot",
         "MDS Plot",
-        "PCA Summary Table", 
-        "PCA Scree Plot", 
-        "PCA 3D Plot", 
+        "PCA Summary Table",
+        "PCA Scree Plot",
+        "PCA 3D Plot",
         "PCA 2D Plot",
         "Hierarchical Clustering"
       ),
@@ -114,9 +180,9 @@ output$reportOption <- renderUI({
         "Filtering Threshold",
         "Density Plot",
         "MDS Plot",
-        "PCA Summary Table", 
-        "PCA Scree Plot", 
-        "PCA 3D Plot", 
+        "PCA Summary Table",
+        "PCA Scree Plot",
+        "PCA 3D Plot",
         "PCA 2D Plot",
         "Hierarchical Clustering"
       ),
@@ -150,13 +216,13 @@ observeEvent(input$generateReport, {
     display_pct = TRUE,
     value = 0
   )
-  
+
   src <- normalizePath('Plot_Report.Rmd')
-  
+
   owd <- setwd(tempdir())
   on.exit(setwd(owd))
   file.copy(src, 'Plot_Report.Rmd', overwrite = TRUE)
-  
+
   library(rmarkdown)
   updateProgressBar(
     session = session,
@@ -164,7 +230,7 @@ observeEvent(input$generateReport, {
     title = "Start generating....",
     value = 20
   )
-  
+
   reportParameter <- list(
     CountData = variables$CountData,
     groupList = variables$groupList,
@@ -184,36 +250,36 @@ observeEvent(input$generateReport, {
     norSampleDistributionDensity = variables$norSampleDistributionDensity,
     MAPlotObject = variables$MAPlotObject,
     VolcanoPlotObject = variables$VolcanoPlotObject,
-    
+
     mdsPlot = NULL,
     mdsPlotplot = NULL,
-    
+
     pcaParameter = variables$pcaParameter,
     screePlot = NULL,
     pca3d = NULL,
     pca2d = NULL,
     summaryPCA = NULL,
-    
+
     heatmapObject = variables$heatmapObject,
     expressionLevelBar = variables$expressionLevelBar,
     expressionLevelBox = variables$expressionLevelBox,
-    
+
     tccObject = variables$tccObject
   )
-  
+
   updateProgressBar(
     session = session,
     id = "report",
     title = "Checking report option...",
     value = 30
   )
-  
+
   # Check MDS
   if("MDS Plot" %in% input$importReportOption){
     reportParameter$mdsPlot <- variables$mdsPlot
     reportParameter$mdsPlotplot <- variables$mdsPlotplot
   }
-  
+
   # Check PCA
   if("PCA Summary Table" %in% input$importReportOption){
     reportParameter$summaryPCA <- variables$summaryPCA
@@ -227,7 +293,7 @@ observeEvent(input$generateReport, {
   if("PCA 2D Plot" %in% input$importReportOption){
     reportParameter$pca2d <- variables$pca2d
   }
-  
+
   updateProgressBar(
     session = session,
     id = "report",
@@ -242,13 +308,13 @@ observeEvent(input$generateReport, {
   ))
   variables$reportFile <- out
   runReport$runReportValue <- input$generateReport
-  
+
   for(i in seq(51, 100, 3)){
     updateProgressBar(
       session = session,
       id = "report",
       title = "Saving report....",
-      value = i 
+      value = i
     )
   }
   closeSweetAlert(session = session)
@@ -444,14 +510,14 @@ output$inputLogTable <- DT::renderDataTable({
   DT::datatable(variables$logList)
 })
 
-# AllInputs <- reactive({
-#   x <- reactiveValuesToList(input)
-#   data.frame(
-#     names = names(x),
-#     values = unlist(x, use.names = FALSE)
-#   )
-# })
-# 
-# output$showInputs <- renderTable({
-#   AllInputs()
-# })
+AllInputs <- reactive({
+  x <- reactiveValuesToList(input)
+  data.frame(
+    names = names(x),
+    values = unlist(x, use.names = FALSE)
+  )
+})
+
+output$showInputs <- renderTable({
+  AllInputs()
+})

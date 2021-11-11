@@ -11,7 +11,7 @@ fluidPage(column(
     radioGroupButtons(
       inputId = 'format',
       label = 'Document Format',
-      choices = c(#'Markdown', 
+      choices = c(#'Markdown',
                   'HTML', 
                   'Word'),
       justified = TRUE,
@@ -25,7 +25,7 @@ fluidPage(column(
       ),
       actionBttnParams
     )),
-    
+
     uiOutput("renderDownloadButton")
   )
 ),

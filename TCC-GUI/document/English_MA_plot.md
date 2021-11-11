@@ -1,4 +1,4 @@
-# 🤔What's MA plot?
+# What's MA plot?
 
 ---
 

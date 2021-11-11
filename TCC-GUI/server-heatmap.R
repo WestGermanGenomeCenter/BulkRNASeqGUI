@@ -148,6 +148,24 @@ observeEvent(input$heatmapFDR, {
   })
 })
 
+# TopdivergingGenesN
+
+observeEvent(input$TopdivergingGenesN, {
+ gene_count2 <-
+   nrow(resultTable()[resultTable()$rank <= input$TopdivergingGenesN, ])
+ output$heatmapGeneCountPreview2 <- renderText({
+   paste0(
+     "Gene number: ",
+     gene_count2,
+     " | Generation time: ~",
+     round(gene_count2 / 30, 2),
+     "s"
+   )
+ })
+})
+
+
+
 # According to color selection method, render color selection part --------
 
 
@@ -337,7 +355,7 @@ output$heatmapSelectGene <- renderUI({
           step = 1,
           width = NULL
         ),
-        textOutput("heatmapGeneCountPreview")
+        textOutput("heatmapGeneCountPreview2")
       ),
 
 
@@ -441,8 +459,6 @@ observeEvent(input$heatmapRun, {
           row.names(data) %in% resultTable()[resultTable()$rank <= input$TopdivergingGenesN, ]$gene_id
         heatmapTitle <- "Heatmap of top Diverging genes (rank)"
       }
-
-
 
 
 

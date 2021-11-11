@@ -18,10 +18,10 @@ observeEvent(input$TCC, {
     title = "TCC computation",
     value = 10
   )
-  
+
   data <- variables$CountData
   data.cl <- variables$groupListConvert
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -39,7 +39,7 @@ observeEvent(input$TCC, {
   #   tcc <-
   #     filterLowCountGenes(tcc, low.count = input$filterLowCount)
   # }
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -55,7 +55,7 @@ observeEvent(input$TCC, {
     FDR = input$fdr,
     floorPDEG = input$floorpdeg
   )
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -67,7 +67,7 @@ observeEvent(input$TCC, {
                     test.method = input$testMethod,
                     FDR = input$fdr)
   variables$tccObject <- tcc
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -76,7 +76,7 @@ observeEvent(input$TCC, {
   )
   # Get final result of TCC
   variables$result <- getResult(tcc, sort = FALSE) %>% mutate_if(is.factor, as.character)
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -90,17 +90,21 @@ observeEvent(input$TCC, {
     title = "Save normalized data",
     value = 87
   )
-  
+# check if i can find the normalized data here
+
+  print("the normed data:")
+  print(head(variables$norData))
+
   # Show computation time notification
   runtime <- round(tcc$DEGES$execution.time[3], 2)
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
     title = "Rendering tables",
     value = 93
   )
-  
+
   # Render TCC result table on the right top ----
   output$resultTable <- DT::renderDataTable({
     if (nrow(variables$result) == 0) {
@@ -165,8 +169,8 @@ observeEvent(input$TCC, {
       )
     }
   }, server = FALSE)
-  
-  
+
+
   # Render a table of norm.factors and lib.sizes ----
   output$tccSummation <- DT::renderDataTable({
     df <-
@@ -195,7 +199,7 @@ observeEvent(input$TCC, {
                       tags$sup("*2"),
                       " = Library Size × Normalization Factor."
                     )
-                  ), 
+                  ),
                   option = list(dom = "Bt",
                                 buttons = list(
                                   'copy',
@@ -232,14 +236,14 @@ observeEvent(input$TCC, {
                                   backgroundPosition = 'center'
                                 )
   })
-  
+
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
     title = "Rendering plots",
     value = 97
   )
-  
+
   # Download TCC Result Table function ----
   output$downLoadResultTable <- downloadHandler(
     filename = function() {
@@ -258,7 +262,7 @@ observeEvent(input$TCC, {
       write.csv(resultTable(), file, row.names = FALSE)
     }
   )
-  
+
   # Download TCC Normalized Table function ----
   output$downLoadNormalized <- downloadHandler(
     filename = function() {
@@ -284,13 +288,13 @@ observeEvent(input$TCC, {
     title = "All done.",
     value = 100
   )
-  
+
   closeSweetAlert(session = session)
   sendSweetAlert(session = session,
                  title = "DONE",
                  text = "TCC was successfully performed.",
                  type = "success")
-  
+
   tccRun$tccRunValue <- input$TCC
 })
 

@@ -88,11 +88,52 @@ output$geneBarPlotExpression <- renderPlotly({
   }
 })
 
+
+
+
+
 # Render plotly object of boxplot -----
 output$geneBoxPlotExpression <- renderPlotly({
   if (length(variables$expressionData) > 0) {
     tcc <- variables$tccObject
     data <- variables$expressionData
+    # see if normed data is available here
+    print("the raw data:")
+    print(head(variables$expressionData))
+    #
+    #    exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
+    #Sp2         52         47         36           99           53           66
+    #
+
+    print("the normed data:")
+    print(head(variables$norData))
+
+  #                 exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
+  #Sp2            56.059155  42.557419   69.96067   66.0095478    55.605518    65.965866
+  #AK051368        4.732686   1.005079    0.00000    0.7334394     0.000000     0.000000
+  #Ubiad1        130.445341 113.184626  126.31787   89.3462566    99.670269   110.942592
+
+    print("the tcc object data:")
+    print(head(variables$tccObject))
+
+  #  Count:
+  #                exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
+  #  Sp2                52.00      47.00         36        99.00           53        66.00
+  #  AK051368            4.39       1.11          0         1.10            0         0.00
+
+
+
+
+    print("tcc data.frame head:")
+    print(head(data.frame(tcc$count)))
+
+    #                   exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
+    #Sp2                52.00      47.00         36        99.00           53        66.00
+#   AK051368            4.39       1.11          0         1.10            0         0.00
+
+
+
+    ##########
     isolate({
       p <- list(0)
       xOrder <-
@@ -187,7 +228,8 @@ observeEvent(input$runExpression, {
   runExp$runExpValue <- input$runExpression
   tcc <- variables$tccObject
   data <- data.frame(tcc$count)
-
+#  data <- data.frame(tcc$count)
+#variables$norData
   data <-
     data[row.names(data) %in% unlist(strsplit(x = input$expressionGeneList, split = "[\r\n]")), ]
 
@@ -201,7 +243,9 @@ observeEvent(input$runExpression, {
     variables$expressionData <- NULL
     return()
   } else {
-    variables$expressionData <- data
+    variables$norData[rownames(varibales$norData) %in% rownames(variables$expressionData),] <- data
+  #   variables$expressionData <- data
+  # test if normalized data arrives in boxplot
   }
 
 

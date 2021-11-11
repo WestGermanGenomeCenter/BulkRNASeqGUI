@@ -22,6 +22,14 @@ tagList(
           href = "https://github.com/WestGermanGenomeCenter/BulkRNASeqGUI"
         ),
         messageItem(
+          from = "Feedback",
+          message = "Send Bug reports ans feature requests",
+          time = sprintf("Update ad %s", as.Date(max(
+            file.info(list.files())$mtime
+          ))),
+          href = "mailto:Daniel.Rickert@hhu.de"
+        ),
+        messageItem(
           from = "About Us",
           message = "Go to Lab Homepage",
           icon = icon("users"),

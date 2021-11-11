@@ -82,9 +82,9 @@ shinyServer(function(input, output, session) {
   source(file = "server-expression-plot.R",
          local = TRUE,
          encoding = "UTF-8")
-#  source(file = "server-report.R",
-#         local = TRUE,
-#         encoding = "UTF-8")
+  source(file = "server-report.R",
+         local = TRUE,
+         encoding = "UTF-8")
   source(file = "R-code.R",
          local = TRUE,
          encoding = "UTF-8")
