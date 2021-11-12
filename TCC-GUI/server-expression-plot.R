@@ -88,6 +88,9 @@ output$geneBarPlotExpression <- renderPlotly({
   }
 })
 
+# check if norm data is available here
+
+
 
 
 
@@ -97,43 +100,6 @@ output$geneBoxPlotExpression <- renderPlotly({
   if (length(variables$expressionData) > 0) {
     tcc <- variables$tccObject
     data <- variables$expressionData
-    # see if normed data is available here
-    print("the raw data:")
-    print(head(variables$expressionData))
-    #
-    #    exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
-    #Sp2         52         47         36           99           53           66
-    #
-
-    print("the normed data:")
-    print(head(variables$norData))
-
-  #                 exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
-  #Sp2            56.059155  42.557419   69.96067   66.0095478    55.605518    65.965866
-  #AK051368        4.732686   1.005079    0.00000    0.7334394     0.000000     0.000000
-  #Ubiad1        130.445341 113.184626  126.31787   89.3462566    99.670269   110.942592
-
-    print("the tcc object data:")
-    print(head(variables$tccObject))
-
-  #  Count:
-  #                exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
-  #  Sp2                52.00      47.00         36        99.00           53        66.00
-  #  AK051368            4.39       1.11          0         1.10            0         0.00
-
-
-
-
-    print("tcc data.frame head:")
-    print(head(data.frame(tcc$count)))
-
-    #                   exper_rep1 exper_rep2 exper_rep3 control_rep1 control_rep2 control_rep3
-    #Sp2                52.00      47.00         36        99.00           53        66.00
-#   AK051368            4.39       1.11          0         1.10            0         0.00
-
-
-
-    ##########
     isolate({
       p <- list(0)
       xOrder <-
@@ -228,8 +194,7 @@ observeEvent(input$runExpression, {
   runExp$runExpValue <- input$runExpression
   tcc <- variables$tccObject
   data <- data.frame(tcc$count)
-#  data <- data.frame(tcc$count)
-#variables$norData
+  data <- data.frame(variables$norData) # tryout 
   data <-
     data[row.names(data) %in% unlist(strsplit(x = input$expressionGeneList, split = "[\r\n]")), ]
 
@@ -243,99 +208,21 @@ observeEvent(input$runExpression, {
     variables$expressionData <- NULL
     return()
   } else {
-    variables$norData[rownames(varibales$norData) %in% rownames(variables$expressionData),] <- data
-  #   variables$expressionData <- data
-  # test if normalized data arrives in boxplot
+    variables$expressionData <- data
   }
 
 
-  # R code of expression plot in barplot -----
-  # output$expressionLevelCodeText <- renderText({
-  #   code <- paste0(
-  #     "# Dataset\n",
-  #     "data <- ",
-  #     paste0("c(", paste0("'", as.character(data.frame(round(data, 2))), "'", collapse = ",\n"), ")", collapse = ""),
-  #     "\n\n# Gene name\n",
-  #     "gene_name <- ",
-  #     paste0("c(", paste0("'", colnames(data), "'", collapse = ","), ")", collapse = ""),
-  #     "\n\n# Sample name\n",
-  #     "sample_name <- ",
-  #     paste0("c(", paste0("'", row.names(data), "'", collapse = ","), ")", collapse = ""),
-  #     "\n\n# Group name\n",
-  #     "group_name <- ",
-  #     paste0("c(", paste0("'", data.cl, "'", collapse = ","), ")", collapse = ""),
-  #     "\n\n# Convert vector to data.frame\nlibrary(tidyr)\nlibrary(plotly)\n",
-  #     '\nvalue_row <- strsplit(x = gsub("c\\\\(", "", data), split = "(\\\\), )|(\\\\))")',
-  #     "\nvalue_row <- data.frame(matrix(unlist(value_row)), row.names = gene_name)",
-  #     '\ndata <- data.frame(value_row) %>% separate(colnames(value_row), sample_name, ",")',
-  #     "\ndata <- data.frame(lapply(data,as.numeric), row.names = gene_name)",
-  #     "\ndata <- t(data)",
-  #     "\n\n# Barplot\n# Reorder x label (if necessary)\n",
-  #     '\nxOrder <- data.frame("name" = colnames(data), "group" = group_name)',
-  #     '\nxOrderVector <- unique(xOrder[order(xOrder$group),]$name)',
-  #     '\nxform <- list(categoryorder = "array", categoryarray = xOrderVector, title = "")',
-  #     '\np <- list(0)',
-  #     '\n\nfor (i in 1:nrow(data)) {\n',
-  #     '    p[[i]] <- plot_ly(x = colnames(data), y = t(data[i,]), color = factor(group_name), type = "bar")\n ',
-  #     '    p[[i]] <- p[[i]] %>% layout(annotations = list(x = 0.5, y = 1.05, text = row.names(data)[i], showarrow = F, xref = "paper", yref = "paper" ),\n',
-  #     '                                showlegend = FALSE, xaxis = xform)\n',
-  #     '}\n',
-  #     'f <- list(0)\n',
-  #     'j <- 1\n',
-  #     'for (i in seq(1, nrow(data), 2)) {\n',
-  #     '    if(i + 1 <= nrow(data)){\n',
-  #     '        f[[j]] <- subplot(p[[i]], p[[i+1]])\n',
-  #     '    } else {\n',
-  #     '        f[[j]] <- subplot(p[[i]])\n',
-  #     '    }\n',
-  #     '    j <- j + 1\n',
-  #     '}\n',
-  #     'subplot(f, nrows = j - 1, margin = 0.05)\n'
-  #   )
-  # })
+# check for normed values availability
+  print("the normed data:")
+  print(head(variables$norData))
+  # works
+  # now isolate the wanted genes and plot these
+  print("only the wanted genes normalized")
+  print(variables$norData[rownames(variables$norData)%in% unlist(strsplit(x = input$expressionGeneList, split = "[\r\n]")),])
 
+  print("thats what gets plotet:")
+  print(data[row.names(data) %in% unlist(strsplit(x = input$expressionGeneList, split = "[\r\n]")), ])
 
-  # R code of expression plot in boxplot
-  # output$expressionLevelBoxCodeText <- renderText({
-  #   code <- paste0(
-  #     "# Dataset\n",
-  #     "data <- ",
-  #     paste0("c(", paste0("'", as.character(data.frame(round(data, 2))), "'", collapse = ",\n"), ")", collapse = ""),
-  #     "\n\n# Gene name\n",
-  #     "gene_name <- ",
-  #     paste0("c(", paste0("'", colnames(data), "'", collapse = ","), ")", collapse = ""),
-  #     "\n\n# Sample name\n",
-  #     "sample_name <- ",
-  #     paste0("c(", paste0("'", row.names(data), "'", collapse = ","), ")", collapse = ""),
-  #     "\n\n# Group name\n",
-  #     "group_name <- ",
-  #     paste0("c(", paste0("'", data.cl, "'", collapse = ","), ")", collapse = ""),
-  #     "\n\n# Convert vector to data.frame\nlibrary(tidyr)\nlibrary(plotly)\n",
-  #     '\nvalue_row <- strsplit(x = gsub("c\\\\(", "", data), split = "(\\\\), )|(\\\\))")',
-  #     "\nvalue_row <- data.frame(matrix(unlist(value_row)), row.names = gene_name)",
-  #     '\ndata <- data.frame(value_row) %>% separate(colnames(value_row), sample_name, ",")',
-  #     "\ndata <- data.frame(lapply(data,as.numeric), row.names = gene_name)",
-  #     "\ndata <- t(data)",
-  #     "\n\n# Barplot\n",
-  #     '\np <- list(0)',
-  #     '\n\nfor (i in 1:nrow(data)) {\n',
-  #     '    p[[i]] <- plot_ly(x = colnames(data), y = t(data[i,]), color = factor(group_name), type = "bar")\n ',
-  #     '    p[[i]] <- p[[i]] %>% layout(annotations = list(x = 0.5, y = 1.05, text = row.names(data)[i], showarrow = F, xref = "paper", yref = "paper" ),\n',
-  #     '                                showlegend = FALSE, xaxis = xform)\n',
-  #     '}\n',
-  #     'f <- list(0)\n',
-  #     'j <- 1\n',
-  #     'for (i in seq(1, nrow(data), 2)) {\n',
-  #     '    if(i + 1 <= nrow(data)){\n',
-  #     '        f[[j]] <- subplot(p[[i]], p[[i+1]])\n',
-  #     '    } else {\n',
-  #     '        f[[j]] <- subplot(p[[i]])\n',
-  #     '    }\n',
-  #     '    j <- j + 1\n',
-  #     '}\n',
-  #     'subplot(f, nrows = j - 1, margin = 0.05)\n'
-  #   )
-  # })
 
   # Selected gene row count DataTable ----
   output$geneTable <- DT::renderDataTable({
