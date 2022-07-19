@@ -15,6 +15,13 @@ library(shinycssloaders)
 library(shinyBS)
 library(MASS)
 
+# new for go term analysis
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(org.Mm.eg.db)
+library(AnnotationDbi)
+
+
 # ====================================
 # This function convert the input of group information to
 # a specific format for TCC calculation.
