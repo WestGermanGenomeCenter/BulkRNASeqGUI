@@ -3,7 +3,7 @@
 fluidPage(useSweetAlert(), fluidRow(column(
   3,
   box(
-    title = tagList(icon("cogs"), "TCC Computation Parameters"),
+    title = tagList(icon("cogs"), "Normalization Parameters"),
     width = NULL,
     solidHeader = TRUE,
     status = "primary",
@@ -39,13 +39,13 @@ fluidPage(useSweetAlert(), fluidRow(column(
         placement = "top"
       ),
       textOutput("lowCountFilterText"),
-      sliderInput(
-        "iteration",
-        "Number of Iteration",
-        min = 0,
-        max = 30,
-        value = 0
-      ),
+      # sliderInput(
+      #   "iteration",
+      #   "Number of Iteration",
+      #   min = 0,
+      #   max = 30,
+      #   value = 0
+      # ),
       sliderInput(
         "fdr",
         "FDR Cut-off",
@@ -54,18 +54,18 @@ fluidPage(useSweetAlert(), fluidRow(column(
         value = 0.1,
         step = 0.05
       ),
-      sliderInput(
-        "floorpdeg",
-        "Elimination of Potential DEGs",
-        min = 0,
-        max = 1,
-        value = 0,
-        step = 0.05
-      ),
+      # sliderInput(
+      #   "floorpdeg",
+      #   "Elimination of Potential DEGs",
+      #   min = 0,
+      #   max = 1,
+      #   value = 0,
+      #   step = 0.05
+      # ),
       do.call(actionBttn, c(
         list(
           inputId = "TCC",
-          label = "Run TCC Computation",
+          label = "Normalization",
           icon = icon("play")
         ),
         actionBttnParams
@@ -73,7 +73,7 @@ fluidPage(useSweetAlert(), fluidRow(column(
     )
   ),
   box(
-    title = tagList(icon("code"), "TCC Computation Code"),
+    title = tagList(icon("code"), "Normalization Computation Code"),
     status = "danger",
     solidHeader = TRUE,
     width = NULL,
@@ -92,7 +92,7 @@ column(
     uiOutput("mainResultTable")
   ),
   box(
-    title = tagList(icon("table"), "Summary of TCC Normalization"),
+    title = tagList(icon("table"), "Summary of Normalization"),
     width = NULL,
     solidHeader = TRUE,
     status = "info",

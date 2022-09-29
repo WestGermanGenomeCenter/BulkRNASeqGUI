@@ -18,10 +18,10 @@ observeEvent(input$TCC, {
     title = "TCC computation",
     value = 10
   )
-
+  
   data <- variables$CountData
   data.cl <- variables$groupListConvert
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -39,7 +39,7 @@ observeEvent(input$TCC, {
   #   tcc <-
   #     filterLowCountGenes(tcc, low.count = input$filterLowCount)
   # }
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -51,11 +51,11 @@ observeEvent(input$TCC, {
     tcc,
     norm.method = input$normMethod,
     test.method = input$testMethod,
-    iteration = input$iteration,
+    iteration = 0,
     FDR = input$fdr,
-    floorPDEG = input$floorpdeg
+    floorPDEG = 0
   )
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -67,7 +67,7 @@ observeEvent(input$TCC, {
                     test.method = input$testMethod,
                     FDR = input$fdr)
   variables$tccObject <- tcc
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -76,7 +76,7 @@ observeEvent(input$TCC, {
   )
   # Get final result of TCC
   variables$result <- getResult(tcc, sort = FALSE) %>% mutate_if(is.factor, as.character)
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
@@ -90,21 +90,21 @@ observeEvent(input$TCC, {
     title = "Save normalized data",
     value = 87
   )
-# check if i can find the normalized data here
-
+  # check if i can find the normalized data here
+  
   print("the normed data:")
   print(head(variables$norData))
-
+  
   # Show computation time notification
   runtime <- round(tcc$DEGES$execution.time[3], 2)
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
     title = "Rendering tables",
     value = 93
   )
-
+  
   # Render TCC result table on the right top ----
   output$resultTable <- DT::renderDataTable({
     if (nrow(variables$result) == 0) {
@@ -122,12 +122,12 @@ observeEvent(input$TCC, {
                      "estimated DEG"),
         caption = tags$caption(
           tags$li("Filter genes by typing condictions (such as 2...5) in the filter boxes to filter numeric columns. ",
-            tags$b("Copy"),
-            ", ",
-            tags$b("Print"),
-            " and ",
-            tags$b("Download"),
-            " the filtered result for further analysis."
+                  tags$b("Copy"),
+                  ", ",
+                  tags$b("Print"),
+                  " and ",
+                  tags$b("Download"),
+                  " the filtered result for further analysis."
           ),
           tags$li(
             HTML("<font color=\"#B22222\"><b>Gene Name</b></font> is colored according to FDR cut-off.")
@@ -169,8 +169,8 @@ observeEvent(input$TCC, {
       )
     }
   }, server = FALSE)
-
-
+  
+  
   # Render a table of norm.factors and lib.sizes ----
   output$tccSummation <- DT::renderDataTable({
     df <-
@@ -236,14 +236,14 @@ observeEvent(input$TCC, {
                                   backgroundPosition = 'center'
                                 )
   })
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
     title = "Rendering plots",
     value = 97
   )
-
+  
   # Download TCC Result Table function ----
   output$downLoadResultTable <- downloadHandler(
     filename = function() {
@@ -262,7 +262,7 @@ observeEvent(input$TCC, {
       write.csv(resultTable(), file, row.names = FALSE)
     }
   )
-
+  
   # Download TCC Normalized Table function ----
   output$downLoadNormalized <- downloadHandler(
     filename = function() {
@@ -281,20 +281,20 @@ observeEvent(input$TCC, {
       write.csv(variables$norData, file)
     }
   )
-
+  
   updateProgressBar(
     session = session,
     id = "tccCalculationProgress",
     title = "All done.",
     value = 100
   )
-
+  
   closeSweetAlert(session = session)
   sendSweetAlert(session = session,
                  title = "DONE",
-                 text = "TCC was successfully performed.",
+                 text = "Normalization was successfully performed.",
                  type = "success")
-
+  
   tccRun$tccRunValue <- input$TCC
 })
 
@@ -315,27 +315,27 @@ observeEvent(input$TCC, {
 
 output$mainResultTable <- renderUI({
   if(tccRun$tccRunValue){
-  tagList(fluidRow(column(
-    12,
-    downloadButton("downLoadResultTable", "Download All Result (CSV)"),
-    downloadButton("downLoadNormalized", "Download Normalized Data (CSV)")
-  )),
-  tags$br(),
-  fluidRow(column(
-    12, DT::dataTableOutput('resultTable') %>% withSpinner()
-  )))} else {
-    helpText("Click [Run TCC Computation] to obtain Result Table.")
-  }
+    tagList(fluidRow(column(
+      12,
+      downloadButton("downLoadResultTable", "Download All Result (CSV)"),
+      downloadButton("downLoadNormalized", "Download Normalized Data (CSV)")
+    )),
+    tags$br(),
+    fluidRow(column(
+      12, DT::dataTableOutput('resultTable') %>% withSpinner()
+    )))} else {
+      helpText("Click [Normalization] to obtain Result Table.")
+    }
 })
 
 # Render tcc summary table ----
 output$tccSummationUI <- renderUI({
   if(tccRun$tccRunValue){
-  tagList(
-    DT::dataTableOutput("tccSummation")
-  )} else {
-    helpText("Summary of TCC normalization will be shown after TCC computation.")
-  }
+    tagList(
+      DT::dataTableOutput("tccSummation")
+    )} else {
+      helpText("Summary of normalization will be shown after computation.")
+    }
 })
 
 

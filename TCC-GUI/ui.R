@@ -23,7 +23,7 @@ tagList(
         ),
         messageItem(
           from = "Feedback",
-          message = "Send Bug reports ans feature requests",
+          message = "Send Bug reports and feature requests",
           time = sprintf("Update ad %s", as.Date(max(
             file.info(list.files())$mtime
           ))),
@@ -105,7 +105,7 @@ tagList(
               ))
             ),
             tabPanel(
-              title = "TCC Computation",
+              title = "Normalization",
               icon = icon("calculator"),
               fluidRow(column(
                 includeMarkdown("document/English_Computation.md"),
