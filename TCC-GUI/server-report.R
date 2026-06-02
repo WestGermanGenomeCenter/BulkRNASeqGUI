@@ -1,523 +1,135 @@
-# server-report.R
+GORun <- reactiveValues(go_results = FALSE)
 
-# add small table to check input data
+# output$tccSummationUI2 <- renderUI({
+#   if(tccRun$tccRunValue){
+#     tagList(
+#       DT::dataTableOutput("tccSummation2")
+#     )} else {
+#       helpText("Summary of TCC normalization will be shown after TCC computation.")
+#     }
+# })
+#tcc <- variables$tccObject
+#ready_for_go_term<-resultTable()
 
+#output$tccSummation2 <- DT::renderDataTable({variables$result[order(variables$result$rank),]})
 
-
-
-
-
-# table function from data import partv
-
-#
-# runReport <- DT::renderDataTable({
-#   df <- datasetInput()
-#   # Create 19 breaks and 20 rgb color values ranging from white to blue
-#   brks <-
-#     quantile(df %>% select_if(is.numeric),
-#       probs = seq(.05, .95, .05),
-#       na.rm = TRUE
-#     )
-#
-#   DT::datatable(
-#     df,
-#     colnames = c("Gene Name" = 1),
-#     extensions = c("Scroller", "RowReorder"),
-#     option = list(
-#       rowReorder = TRUE,
-#       deferRender = TRUE,
-#       scrollY = 400,
-#       scroller = TRUE,
-#       scrollX = TRUE,
-#       searchHighlight = TRUE,
-#       orderClasses = TRUE
-#     )
-#   ) %>%
-#     formatStyle(names(df %>% select_if(is.numeric)), backgroundColor = styleInterval(brks, head(Blues(40), n = length(brks) + 1)))
+# resultTable <- reactive({
+#   variables$result
+#   print("trying to get to resulttable:")
+#   print(head(variables$result,n=23))
+#   results_sorted=variables$result[order(variables$result$rank),]
+#   print("results sorted by rank:")
+#   print(head(results_sorted),n=10)
+# 
+#   
+#   
+#   
+#   
 # })
 
-#try to print the table upon play presses
- observeEvent(input$generateReport,{DT::renderDataTable({
-   df <- datasetInput()
-   # Create 19 breaks and 20 rgb color values ranging from white to blue
-   brks <-
-     quantile(df %>% select_if(is.numeric),
-       probs = seq(.05, .95, .05),
-       na.rm = TRUE
-     )
-
-   DT::datatable(
-     df,
-     colnames = c("Gene Name" = 1),
-     extensions = c("Scroller", "RowReorder"),
-     option = list(
-       rowReorder = TRUE,
-       deferRender = TRUE,
-       scrollY = 400,
-       scroller = TRUE,
-       scrollX = TRUE,
-       searchHighlight = TRUE,
-       orderClasses = TRUE
-     )
-   ) %>%
-     formatStyle(names(df %>% select_if(is.numeric)), backgroundColor = styleInterval(brks, head(Blues(40), n = length(brks) + 1)))
- })})
 
 
+observeEvent(input$GO_Term, {
+  withProgress(message = "calculating GO Term enrichment...",{
+  results_sorted=variables$result[order(variables$result$rank),]
+  print("could do go term analysis now....")
+  sigs_sorted=results_sorted
+  head(sigs_sorted)
+  # filter for most significant genes 
+  
+  only_sigs=sigs_sorted[sigs_sorted$rank<input$N_Ranking_genes_to_use,]
+  # only need genenames
+  print("head of top rank")
+  print(head(only_sigs))
+  sigs_names=only_sigs$gene_id
+  
+  go_results=enrichGO(gene = sigs_names, OrgDb = input$OrganismGO,keyType = input$KeyType, ont = input$ontologyType)
+  print("go term results table:")
+  print(head(as.data.frame(go_results)))
+  GORun$s4=go_results
+  
+  results=as.data.frame(go_results)
+  
+  GORun$gores=12
+ # go_run_value=1
+  
+  # show the data table and show a lot of plots!!!!!!!
+  GORun$go_results=data.frame(go_results)
+  
+  # todo: add table, add plots
+  
+  print("go term results are finished!")
+  })
 
-
-runReport <- reactiveValues(runReportValue = FALSE)
-# If analysis part has been executed, than render check box ----
-output$renderSimulationReportOption <- renderUI({
-  if(simuRun$simulationRunValue){
-    awesomeCheckboxGroup(
-      inputId = "simulationReportOption",
-      label = "Simulation Data",
-      choices = c("Parameters", "Summary Table"),
-      selected = c("Parameters", "Summary Table"),
-      inline = TRUE
-    )
-  } else {
-    tagList(
-      tags$b("Simulation Data"),
-      helpText("You need to execute this part first to generate reportable objects.")
-    )
-  }
 })
 
-output$renderMaReportOption <- renderUI({
-  if(runMA$runMAValues){
-    awesomeCheckboxGroup(
-      inputId = "maReportOption",
-      label = "MA Plot",
-      choices = c("Parameters", "MA Plot"),
-      selected = c("Parameters", "MA Plot"),
-      inline = TRUE
-    )
-  } else {
-    tagList(
-      tags$b("MA Plot"),
-      helpText("You need to execute this part first to generate reportable objects.")
-    )
-  }
+
+output$go_res<- renderUI({
+
+      tagList(fluidRow(column(
+        12,
+        downloadButton("downLoadGOtermtable", "Download GO Term Enrichment results (CSV)")
+      )),
+        
+      (fluidRow(column(   
+        12,
+         DT::dataTableOutput("goSummation2")
+      ))))
+
 })
 
-output$renderVolcanoReportOption <- renderUI({
-  if(runVolcano$runVolcanoValue){
-    awesomeCheckboxGroup(
-      inputId = "volcanoReportOption",
-      label = "Volcano Plot",
-      choices = c("Parameters", "Volcano Plot"),
-      selected = c("Parameters", "Volcano Plot"),
-      inline = TRUE
-    )
-  } else {
-    tagList(
-      tags$b("Volcano Plot"),
-      helpText("You need to execute this part first to generate reportable objects.")
-    )
-  }
+observeEvent(input$GO_Term, {
+  observeEvent(GORun$go_results, {
+    print("go_results observed, trying to render the df with go results now...")
+    df <-data.frame(GORun$go_results)
+    colnames(df) <-c("ID","Description","GeneRatio","BgRatio","pvalue","p.adjust","qvalue","geneID","Count" )
+    output$goSummation2 <- DT::renderDataTable({GORun$go_results})
+
+  })
 })
 
-output$renderHeatmapReportOption <- renderUI({
-  if(runHeatmap$runHeatmapValue){
-    awesomeCheckboxGroup(
-      inputId = "heatmapReportOption",
-      label = "Heatmap",
-      choices = c("Parameters", "Data Table", "Heatmap"),
-      selected = c("Parameters", "Data Table", "Heatmap"),
-      inline = TRUE
-    )
-  } else {
-    tagList(
-      tags$b("Heatmap"),
-      helpText("You need to execute this part first to generate reportable objects.")
-    )
-  }
+observeEvent(input$GO_Term, {
+  observeEvent(GORun$go_results, {
+    output$go_term_plot<-renderUI({
+      tagList(
+        fluidRow(
+          plotlyOutput("go_plot")
+        )
+      )
+    })
+  })
 })
 
-output$renderExpressionReportOption <- renderUI({
-  if(runExp$runExpValue){
-    awesomeCheckboxGroup(
-      inputId = "expressionReportOption",
-      label = "Expression Level",
-      choices = c("Parameters", "Data Table", "Barplot", "Boxplot"),
-      selected = c("Parameters", "Data Table", "Barplot", "Boxplot"),
-      inline = TRUE
-    )
-  } else {
-    tagList(
-      tags$b("Expression Level"),
-      helpText("You need to execute this part first to generate reportable objects.")
-    )
-  }
-})
-# Render all check box in the report option ----
-output$reportOption <- renderUI({
-  tagList(
-    uiOutput("renderSimulationReportOption"),
-    tags$hr(),
-    awesomeCheckboxGroup(
-      inputId = "importReportOption",
-      label = "Exploratory Analysis",
-      choices = c(
-        "Parameters",
-        "Summary Table",
-        "Count Distribution",
-        "Filtering Threshold",
-        "Density Plot",
-        "MDS Plot",
-        "PCA Summary Table",
-        "PCA Scree Plot",
-        "PCA 3D Plot",
-        "PCA 2D Plot",
-        "Hierarchical Clustering"
-      ),
-      selected = c(
-        "Parameters",
-        "Summary Table",
-        "Count Distribution",
-        "Filtering Threshold",
-        "Density Plot",
-        "MDS Plot",
-        "PCA Summary Table",
-        "PCA Scree Plot",
-        "PCA 3D Plot",
-        "PCA 2D Plot",
-        "Hierarchical Clustering"
-      ),
-      inline = TRUE
-    ),
-    tags$hr(),
-    awesomeCheckboxGroup(
-      inputId = "tccReportOption",
-      label = "TCC Computation",
-      choices = c("Parameters", "Code", "Summary Table"),
-      selected = c("Parameters", "Summary Table"),
-      inline = TRUE
-    ),
-    tags$hr(),
-    uiOutput("renderMaReportOption"),
-    tags$hr(),
-    uiOutput("renderVolcanoReportOption"),
-    tags$hr(),
-    uiOutput("renderHeatmapReportOption"),
-    tags$hr(),
-    uiOutput("renderExpressionReportOption")
-  )
+observeEvent(input$GO_Term, {
+  observeEvent (GORun$go_results, {
+    output$go_plot <- renderPlotly({
+      dat_order=GORun$go_results[order(as.numeric(GORun$go_results$p.adjust)),]
+      dat_head=head(dat_order,n=input$N_Ranking_genes_to_Plot)
+      print("top selected hits from go term:")
+      print(dat_head)
+      xform=list(categoryorder="array",categoryarray= (dat_head$Description))
+      plot_ly(data = dat_head, x=dat_head$p.adjust,y=dat_head$Description, type="bar")%>% layout(yaxis =xform,title ="GO Term Enrichment Result Plot",xaxis = list(title="p.value adj."))
+    })
+  })
 })
 
-# Click the generate report button, render report ----
-observeEvent(input$generateReport, {
-  progressSweetAlert(
-    session = session,
-    id = "report",
-    title = "Setting parameters...",
-    display_pct = TRUE,
-    value = 0
-  )
 
-  src <- normalizePath('Plot_Report.Rmd')
 
-  owd <- setwd(tempdir())
-  on.exit(setwd(owd))
-  file.copy(src, 'Plot_Report.Rmd', overwrite = TRUE)
-
-  library(rmarkdown)
-  updateProgressBar(
-    session = session,
-    id = "report",
-    title = "Start generating....",
-    value = 20
-  )
-
-  reportParameter <- list(
-    CountData = variables$CountData,
-    groupList = variables$groupList,
-    groupListConvert = variables$groupListConvert,
-    result = variables$result,
-    norData = variables$norData,
-    filterLowCount = input$filterLowCount,
-    normMethod = input$normMethod,
-    testMethod = input$testMethod,
-    iteration = input$iteration,
-    fdr = input$fdr,
-    floorpdeg = input$floorpdeg,
-    zeroValue = variables$zeroValue,
-    sampleDistributionBar = variables$sampleDistributionBar,
-    sampleDistributionDensity = variables$sampleDistributionDensity,
-    norSampleDistributionBar = variables$norSampleDistributionBar,
-    norSampleDistributionDensity = variables$norSampleDistributionDensity,
-    MAPlotObject = variables$MAPlotObject,
-    VolcanoPlotObject = variables$VolcanoPlotObject,
-
-    mdsPlot = NULL,
-    mdsPlotplot = NULL,
-
-    pcaParameter = variables$pcaParameter,
-    screePlot = NULL,
-    pca3d = NULL,
-    pca2d = NULL,
-    summaryPCA = NULL,
-
-    heatmapObject = variables$heatmapObject,
-    expressionLevelBar = variables$expressionLevelBar,
-    expressionLevelBox = variables$expressionLevelBox,
-
-    tccObject = variables$tccObject
-  )
-
-  updateProgressBar(
-    session = session,
-    id = "report",
-    title = "Checking report option...",
-    value = 30
-  )
-
-  # Check MDS
-  if("MDS Plot" %in% input$importReportOption){
-    reportParameter$mdsPlot <- variables$mdsPlot
-    reportParameter$mdsPlotplot <- variables$mdsPlotplot
-  }
-
-  # Check PCA
-  if("PCA Summary Table" %in% input$importReportOption){
-    reportParameter$summaryPCA <- variables$summaryPCA
-  }
-  if("PCA Scree Plot" %in% input$importReportOption){
-    reportParameter$screePlot <- variables$screePlot
-  }
-  if("PCA 3D Plot" %in% input$importReportOption){
-    reportParameter$pca3d <- variables$pca3d
-  }
-  if("PCA 2D Plot" %in% input$importReportOption){
-    reportParameter$pca2d <- variables$pca2d
-  }
-
-  updateProgressBar(
-    session = session,
-    id = "report",
-    title = "Rendering report....",
-    value = 50
-  )
-  out <- render('Plot_Report.Rmd', params = reportParameter, switch(
-    input$format,
-    Markdown = md_document(),
-    HTML = html_document(),
-    Word = word_document()
-  ))
-  variables$reportFile <- out
-  runReport$runReportValue <- input$generateReport
-
-  for(i in seq(51, 100, 3)){
-    updateProgressBar(
-      session = session,
-      id = "report",
-      title = "Saving report....",
-      value = i
-    )
-  }
-  closeSweetAlert(session = session)
-  sendSweetAlert(session = session,
-                 title = "DONE",
-                 text = "Click [Download] to save your report.",
-                 type = "success")
-})
-
-output$renderDownloadButton <- renderUI({
-  if (runReport$runReportValue) {
-    tagList(tags$br(), downloadButton('downloadPlotReport'))
-  } else {
-    helpText("Click [Generate Report] for generation.")
-  }
-})
-
-output$downloadPlotReport <- downloadHandler(
+output$downLoadGOtermtable<- downloadHandler(
   filename = function() {
-    paste('Plot_Report', sep = '.', switch(
-      input$format,
-      Markdown = 'md',
-      HTML = 'html',
-      Word = 'docx'
-    ))
+    paste(
+      Sys.Date(),
+      input$normMethod,
+      input$testMethod,
+      input$iteration,
+      input$fdr,
+      input$floorpdeg,
+      "GO_term_enrichment_results.csv",
+      sep = "_"
+    )
   },
-
   content = function(file) {
-    file.rename(variables$reportFile, file)
+    write.csv(GORun$go_results, file)
   }
 )
 
-
-
-# Tab click logs -----
-observeEvent(input$sider, {
-  clickTab <- switch(
-    input$sider,
-    "welcome" = "Guidance",
-    "dateImport" = "Data Import",
-    "calculationTab" = "Calculation",
-    "maplotTab" = "MA Plot",
-    "volcanoplotTab" = "Volcano Plot",
-    "pcaTab" = "PCA Analysis",
-    "heatmapTab" = "Heatmap",
-    "expressionTab" = "Expression",
-    "reportTab" = "Report"
-  )
-  variables$logList <-
-    rbind(variables$logList,
-          list(
-            "Time" = as.character(Sys.time()),
-            "Type" = "Tab",
-            "Action" = paste0(clickTab, collapse = "-"),
-            "Parameters" = ""
-          ),
-          stringsAsFactors = FALSE)
-})
-
-
-# Load Sample Data botton log -----
-observeEvent(input$CountDataSample, {
-  variables$logList <- rbind(
-    variables$logList,
-    list(
-      "Time" = as.character(Sys.time()),
-      "Type" = "Button",
-      "Action" = "Load sample data",
-      "Parameters" = input$SampleDatabase
-    ),
-    stringsAsFactors = FALSE
-  )
-})
-
-# Click TCC botton log ----
-observeEvent(input$TCC, {
-  TCCParaLog <- paste(
-    "Filter low count genes threshold:",
-    input$filterLowCount,
-    "Normalization method:",
-    input$normMethod,
-    "DEGs identify method:",
-    input$testMethod,
-    "Interation:",
-    input$iteration,
-    "FDR:",
-    input$fdr,
-    "Elimination of Potential DEGs:",
-    input$floorpdeg,
-    sep = " "
-  )
-  variables$logList <- rbind(
-    variables$logList,
-    list(
-      "Time" = as.character(Sys.time()),
-      "Type" = "Button",
-      "Action" = "Run TCC",
-      "Parameters" = TCCParaLog
-    ),
-    stringsAsFactors = FALSE
-  )
-})
-
-
-# Click MA botton log ----
-observeEvent(input$makeMAPlot , {
-  MAParaLog <- paste(
-    "Point Size:",
-    input$pointSize,
-    "FDR:",
-    input$maFDR,
-    "DEGs color:",
-    input$fdrColor,
-    sep = " "
-  )
-  variables$logList <- rbind(
-    variables$logList,
-    list(
-      "Time" = as.character(Sys.time()),
-      "Type" = "Button",
-      "Action" = "Generate MA-Plot",
-      "Parameters" = MAParaLog
-    ),
-    stringsAsFactors = FALSE
-  )
-})
-
-# Click Volcano botton log ----
-
-observeEvent(input$makeVolcanoPlot , {
-  VolcanoParaLog <- paste(
-    "Fold Change cut-off:",
-    paste(input$CutFC, collapse = "~"),
-    "p-value cut-off:",
-    input$Cutpvalue,
-    "Point Size:",
-    input$pointSize,
-    "Down-regulate:",
-    input$downColor,
-    "Up-regulate:",
-    input$upColor,
-    sep = " "
-  )
-  variables$logList <- rbind(
-    variables$logList,
-    list(
-      "Time" = as.character(Sys.time()),
-      "Type" = "Button",
-      "Action" = "Generate Volcano Plot",
-      "Parameters" = VolcanoParaLog
-    ),
-    stringsAsFactors = FALSE
-  )
-})
-
-
-# Click PCA botton log ----
-
-observeEvent(input$pcRun, {
-  if(input$pcFDR != ""){
-    pcaFDR <- paste0("FDR:", input$pcFDR, sep = " ")
-  } else {
-    pcaFDR <- ""
-  }
-  pcaParaLog <- paste(
-    pcaFDR,
-    "Center:",
-    input$pcCenter,
-    "Scale:",
-    input$pcScale,
-    "Log transform:",
-    input$pcTransform,
-    "Source:",
-    input$pcData,
-    "Hierarchical Clustering Method:",
-    input$dendMethod,
-    sep = " "
-  )
-  variables$logList <- rbind(
-    variables$logList,
-    list(
-      "Time" = as.character(Sys.time()),
-      "Type" = "Button",
-      "Action" = "Run PCA Analysis",
-      "Parameters" = pcaParaLog
-    ),
-    stringsAsFactors = FALSE
-  )
-})
-
-# Input table ----
-output$inputLogTable <- DT::renderDataTable({
-  DT::datatable(variables$logList)
-})
-
-AllInputs <- reactive({
-  x <- reactiveValuesToList(input)
-  data.frame(
-    names = names(x),
-    values = unlist(x, use.names = FALSE)
-  )
-})
-
-output$showInputs <- renderTable({
-  AllInputs()
-})

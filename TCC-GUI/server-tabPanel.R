@@ -5,7 +5,7 @@
 observeEvent(input$confirmedGroupList, {
   output$calculationTab <- renderMenu({
     menuItem(
-      "TCC Computation",
+      "Normalization",
       tabName = "calculationTab",
       icon = icon("calculator"),
       badgeLabel = "Step 2",
@@ -66,7 +66,7 @@ observeEvent(input$TCC, {
   })
   output$reportTab <- renderMenu({
     menuItem(
-      "Next Function",
+      "GO Term Analysis",
       tabName = "reportTab",
       icon = icon("angle-double-down"),
       badgeLabel = "Step 4",
